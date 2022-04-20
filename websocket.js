@@ -5,9 +5,9 @@ const ws = new webSocket.Server({
 });
 // 记录聊天人数
 let clients = {};
-let clientNum = 0;
-ws.on("connection", (client) => {
-  client.name = ++clientNum;
+ws.on("connection", (client, req) => {
+  let id = req.url.split("/")[1];
+  client.name = id;
   clients[client.name] = client;
   // 用户的聊天信息
   client.on("message", (msg) => {

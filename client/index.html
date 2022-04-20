@@ -2,7 +2,7 @@
  * @Author: SunFulin
  * @Version: 2.0
  * @createDate: Do not edit
- * @LastEditTime: 2022-03-09 23:04:40
+ * @LastEditTime: 2022-04-11 12:32:15
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -14,6 +14,12 @@
   </head>
 
   <body>
+    <div>
+      <div>
+        用户名：<input type="text" id="username" style="width: 200px" />
+        <button id="login">登录</button>
+      </div>
+    </div>
     <h1>聊天室</h1>
     <div
       id="content"
@@ -32,6 +38,12 @@
     <button id="submit">提交</button>
     <script src="WSClient.js" charset="utf-8"></script>
     <script>
+      document.getElementById("login").addEventListener("click", () => {
+        let obj = {
+          username: document.getElementById("username").value,
+        };
+        sessionStorage.setItem("websocketUserId", JSON.stringify(obj));
+      });
       document.querySelector("#submit").addEventListener(
         "click",
         function () {
