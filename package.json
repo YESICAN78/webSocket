@@ -12,6 +12,7 @@
   "dependencies": {
     "express": "^4.17.3",
     "md5": "^2.3.0",
+    "multiparty": "^4.2.3",
     "ws": "^8.5.0"
   }
 }

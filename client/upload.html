@@ -1,0 +1,104 @@
+<!--
+ * @Author: SunFulin
+ * @Date: 2023-08-29 21:35:57
+ * @LastEditTime: 2023-08-29 21:42:11
+ * @LastEditors: Dragon
+-->
+<!--
+ * @Author: SunFulin
+ * @Date: 2023-08-25 14:42:16
+ * @LastEditTime: 2023-08-29 21:37:20
+ * @LastEditors: Dragon
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <input accept="video/*" @change="beforeUpload" type="file" />
+      <button @click="uploadChunks">点击上传</button>
+    </div>
+  </body>
+  <!-- import Vue before Element -->
+  <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+  <script>
+    new Vue({
+      el: "#app",
+      data: function () {
+        return {
+          fileList: [],
+          //切片文件的起始位置
+          start: 0,
+          chunkSize: 10 * 1024 * 1024, // 每个分片10M
+          //所有分片集合
+          chunksList: [],
+        };
+      },
+      mounted() {},
+      methods: {
+        getUid() {
+          function S4() {
+            return (((1 + Math.random()) * 0x10000) | 0)
+              .toString(16)
+              .substring(1);
+          }
+          return (
+            S4() +
+            S4() +
+            "-" +
+            S4() +
+            "-" +
+            S4() +
+            "-" +
+            S4() +
+            "-" +
+            S4() +
+            S4() +
+            S4()
+          );
+        },
+        beforeUpload(files) {
+          files = files.target.files[0];
+          while (this.start < files.size) {
+            // 文件切片
+            const chunkItem = files.slice(
+              this.start,
+              this.start + this.chunkSize
+            );
+            this.chunksList.push(chunkItem);
+            this.start += this.chunkSize;
+          }
+        },
+        async uploadChunks() {
+          const formDataList = this.chunksList.map((chunkItem, index) => {
+            let formData = new FormData();
+            formData.append("uuid", this.getUid());
+            formData.append("total", this.chunksList.length);
+            formData.append("name", "啊实打.mp4");
+            formData.append("data", chunkItem);
+            formData.append("index", index);
+            formData.append("userId", "222222");
+            formData.append("type", "video");
+            return formData;
+          });
+          // 依次上传每一个切片文件
+          const requestList = formDataList.map((formData) => {
+            return axios({
+              url: "http://localhost:3000/upload",
+              data: formData,
+              method: "POST",
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            });
+          });
+          // 等待所有切片上传完成
+          await Promise.all(requestList);
+        },
+      },
+    });
+  </script>
+</html>
